@@ -10,22 +10,25 @@ import random
 import sys
 from cachetools import TTLCache
 
+# Get the absolute path of the current file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
 app = FastAPI(title="Sector Analysis Dashboard")
 
 # Cache configuration
 cache = TTLCache(maxsize=100, ttl=1800)
 
-# Get the absolute path
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-
-# Mount static files
+# Mount static files with absolute path
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Initialize templates with proper configuration
-templates = Jinja2Templates(directory=TEMPLATES_DIR)
+# Initialize templates with absolute path and autoescape
+templates = Jinja2Templates(
+    directory=TEMPLATES_DIR,
+    autoescape=True
+)
 
 durationMapping = {
     '1d': '1 day',
@@ -44,19 +47,27 @@ todayDate = (datetime.now() - timedelta(days=0)).strftime('%d-%m-%Y')
 
 @app.get("/")
 async def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "durations": durationItems,
-        "current_date": todayDate
-    })
+    return templates.TemplateResponse(
+        "dashboard.html", 
+        {
+            "request": request,
+            "durations": durationItems,
+            "current_date": todayDate,
+            "app_name": "Market Insight"
+        }
+    )
 
 @app.get("/sector-analysis")
 async def sector_analysis(request: Request):
-    return templates.TemplateResponse("sector_analysis.html", {
-        "request": request,
-        "durations": durationItems,
-        "current_date": todayDate
-    })
+    return templates.TemplateResponse(
+        "sector_analysis.html", 
+        {
+            "request": request,
+            "durations": durationItems,
+            "current_date": todayDate,
+            "app_name": "Market Insight"
+        }
+    )
 
 @app.get("/api/guide")
 def read_root():
@@ -71,7 +82,9 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "python_version": sys.version
+        "python_version": sys.version,
+        "template_dir": TEMPLATES_DIR,
+        "static_dir": STATIC_DIR
     }
 
 def get_mock_sectors():
@@ -127,7 +140,7 @@ async def get_sector_data(duration: str = Query(..., description="1d, 5d, 1m, 3m
     if cache_key in cache:
         return cache[cache_key]
     
-    # Use mock data for Vercel
+    # Use mock data for Vercel (faster and reliable)
     data = get_mock_sectors()
     
     # Try to fetch real data if possible
@@ -142,15 +155,18 @@ async def get_sector_data(duration: str = Query(..., description="1d, 5d, 1m, 3m
         if response.status_code == 200:
             response_data = response.json()
             if 'data' in response_data and len(response_data['data']) > 0:
+                import pandas as pd
+                df = pd.DataFrame(response_data['data'])
+                
                 real_data = []
-                for item in response_data['data']:
+                for _, row in df.iterrows():
                     sector_data = {
                         'date': todayDate,
                         'duration': durationMapping.get(duration, duration),
-                        'trend': item.get('trend', 'Neutral'),
-                        'sector': item.get('sector', 'Unknown'),
-                        'percentage_change': item.get('mCapPerChange', 0),
-                        'sector_url': '#',
+                        'trend': row.get('trend', 'Neutral'),
+                        'sector': row.get('sector', 'Unknown'),
+                        'percentage_change': row.get('mCapPerChange', 0),
+                        'sector_url': f"https://www.moneycontrol.com/markets/sector-analysis/{row.get('slug', '')}",
                         'stocks_data': []
                     }
                     real_data.append(sector_data)
