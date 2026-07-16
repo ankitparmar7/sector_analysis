@@ -6,6 +6,7 @@
     <title>Sector Analysis - Market Insight</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -74,7 +75,7 @@
                         <label><i class="fas fa-clock"></i> Duration</label>
                         <select id="durationSelect" class="form-control">
                             <option value="">Select Duration</option>
-                            {% for key, value in durations %}
+                            {% for key, value in durations.items() %}
                             <option value="{{ key }}">{{ value }}</option>
                             {% endfor %}
                         </select>
@@ -96,13 +97,36 @@
                 </div>
             </div>
 
-            <!-- Top Sector Performers -->
-            <div class="top-performers-section" id="topPerformersSection" style="display: none;">
+            <!-- Charts Section -->
+            <div class="charts-section" id="chartsSection" style="display: none;">
                 <div class="section-header">
-                    <h2><i class="fas fa-trophy"></i> Top Sector Performers</h2>
+                    <h2><i class="fas fa-chart-line"></i> Sector Overview</h2>
                     <span class="section-badge">Analysis</span>
                 </div>
+                
+                <!-- Top 3 Gainers, Losers, Neutral for Stocks -->
                 <div class="top-performers" id="topPerformers"></div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> Sector Performance</h3>
+                            <span class="chart-badge">Distribution</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sectorPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-bar"></i> Trend Distribution</h3>
+                            <span class="chart-badge">Analysis</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Results -->
