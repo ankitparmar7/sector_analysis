@@ -6,8 +6,6 @@ class SectorAnalysis {
         this.allStocks = [];
         this.charts = {};
         this.toastTimeout = null;
-        this.currentSortField = 'percentage_change';
-        this.currentSortOrder = 'desc';
         this.initializeElements();
         this.attachEventListeners();
         this.initTheme();
@@ -34,8 +32,8 @@ class SectorAnalysis {
         this.resultsCount = document.getElementById('resultsCount');
         this.searchInput = document.getElementById('searchInput');
         this.themeToggle = document.getElementById('themeToggle');
+        this.chartsSection = document.getElementById('chartsSection');
         this.topPerformers = document.getElementById('topPerformers');
-        this.topPerformersSection = document.getElementById('topPerformersSection');
     }
 
     attachEventListeners() {
@@ -149,11 +147,12 @@ class SectorAnalysis {
             }
         });
 
-        this.displayTopSectorPerformers(data.data);
+        this.displayTopPerformers(data.data);
+        this.displayCharts(data.data);
         this.renderSectors(data.data);
         
         if (this.resultsContainer) this.resultsContainer.style.display = 'block';
-        if (this.topPerformersSection) this.topPerformersSection.style.display = 'block';
+        if (this.chartsSection) this.chartsSection.style.display = 'block';
         if (this.noData) this.noData.style.display = 'none';
         if (this.resultsCount) {
             this.resultsCount.textContent = `${data.data.length} sectors found`;
@@ -162,72 +161,196 @@ class SectorAnalysis {
         this.updateCacheStatus();
     }
 
-    displayTopSectorPerformers(sectors) {
+    displayTopPerformers(sectors) {
         if (!this.topPerformers) return;
 
-        // Sort sectors by percentage change
-        const sortedSectors = [...sectors].sort((a, b) => 
+        // Get all stocks from all sectors
+        const allStocks = [];
+        sectors.forEach(sector => {
+            if (sector.stocks_data) {
+                sector.stocks_data.forEach(stock => {
+                    allStocks.push({
+                        ...stock,
+                        sector: sector.sector
+                    });
+                });
+            }
+        });
+
+        // Sort by percentage change
+        const sorted = [...allStocks].sort((a, b) => 
             parseFloat(b.percentage_change) - parseFloat(a.percentage_change)
         );
 
-        // Get top 5 gaining sectors (positive change)
-        const topGainers = sortedSectors.filter(s => parseFloat(s.percentage_change) > 0).slice(0, 5);
-        
-        // Get top 5 losing sectors (negative change)
-        const topLosers = sortedSectors.filter(s => parseFloat(s.percentage_change) < 0).slice(-5).reverse();
-        
-        // Get top 5 neutral sectors (close to 0)
-        const topNeutral = sortedSectors
-            .filter(s => Math.abs(parseFloat(s.percentage_change)) <= 0.5)
-            .slice(0, 5);
-
-        // Helper to render items
-        const renderItems = (items, type) => {
-            if (items.length === 0) {
-                return `<div class="performer-item" style="color: var(--text-secondary); font-size: 13px;">No sectors available</div>`;
-            }
-            return items.map((s, index) => {
-                const change = parseFloat(s.percentage_change) || 0;
-                const valueClass = type === 'gainers' ? 'positive' : 
-                                  type === 'losers' ? 'negative' : 'neutral';
-                return `
-                    <div class="performer-item" onclick="window.sectorAnalysis.openSectorDetail(${sectors.indexOf(s)})" style="cursor: pointer;">
-                        <span class="name">${index + 1}. ${s.sector || 'N/A'}</span>
-                        <span class="value ${valueClass}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span>
-                    </div>
-                `;
-            }).join('');
-        };
+        const gainers = sorted.slice(0, 3);
+        const losers = sorted.slice(-3).reverse();
+        const neutral = sorted.filter(s => Math.abs(parseFloat(s.percentage_change)) < 0.5).slice(0, 3);
 
         this.topPerformers.innerHTML = `
             <div class="performer-card gainers">
-                <div class="performer-title">
-                    <i class="fas fa-arrow-up"></i> Top 5 Gaining Sectors
-                    <span style="font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-left: 8px;">
-                        ${topGainers.length} sectors
-                    </span>
-                </div>
-                ${renderItems(topGainers, 'gainers')}
+                <div class="performer-title"><i class="fas fa-arrow-up"></i> Top Gainers</div>
+                ${gainers.map(s => `
+                    <div class="performer-item">
+                        <span class="name">${s.stock_name || 'N/A'}</span>
+                        <span class="value positive">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
+                    </div>
+                `).join('')}
             </div>
             <div class="performer-card losers">
-                <div class="performer-title">
-                    <i class="fas fa-arrow-down"></i> Top 5 Losing Sectors
-                    <span style="font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-left: 8px;">
-                        ${topLosers.length} sectors
-                    </span>
-                </div>
-                ${renderItems(topLosers, 'losers')}
+                <div class="performer-title"><i class="fas fa-arrow-down"></i> Top Losers</div>
+                ${losers.map(s => `
+                    <div class="performer-item">
+                        <span class="name">${s.stock_name || 'N/A'}</span>
+                        <span class="value negative">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
+                    </div>
+                `).join('')}
             </div>
             <div class="performer-card neutral">
-                <div class="performer-title">
-                    <i class="fas fa-minus"></i> Top 5 Neutral Sectors
-                    <span style="font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-left: 8px;">
-                        ${topNeutral.length} sectors
-                    </span>
-                </div>
-                ${renderItems(topNeutral, 'neutral')}
+                <div class="performer-title"><i class="fas fa-minus"></i> Neutral</div>
+                ${neutral.map(s => `
+                    <div class="performer-item">
+                        <span class="name">${s.stock_name || 'N/A'}</span>
+                        <span class="value neutral">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
+                    </div>
+                `).join('')}
             </div>
         `;
+    }
+
+    displayCharts(sectors) {
+        setTimeout(() => {
+            this.createSectorPerformanceChart(sectors);
+            this.createTrendDistributionChart(sectors);
+        }, 100);
+    }
+
+    createSectorPerformanceChart(sectors) {
+        const ctx = document.getElementById('sectorPerformanceChart');
+        if (!ctx) return;
+
+        if (this.charts.sectorPerformance) {
+            this.charts.sectorPerformance.destroy();
+        }
+
+        const labels = sectors.map(s => s.sector || 'Unknown');
+        const data = sectors.map(s => parseFloat(s.percentage_change) || 0);
+        const colors = data.map(v => v >= 0 ? '#48bb78' : '#fc8181');
+
+        try {
+            this.charts.sectorPerformance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data.map(v => Math.abs(v) || 0.1),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 10,
+                                usePointStyle: true,
+                                font: { size: 11 },
+                                boxWidth: 12,
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#4a5568'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = data[context.dataIndex];
+                                    return `${context.label}: ${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        } catch (error) {
+            console.error('Error creating sector performance chart:', error);
+        }
+    }
+
+    createTrendDistributionChart(sectors) {
+        const ctx = document.getElementById('trendDistributionChart');
+        if (!ctx) return;
+
+        if (this.charts.trendDistribution) {
+            this.charts.trendDistribution.destroy();
+        }
+
+        const trends = {};
+        sectors.forEach(s => {
+            const trend = s.trend || 'Unknown';
+            trends[trend] = (trends[trend] || 0) + 1;
+        });
+
+        const labels = Object.keys(trends);
+        const data = Object.values(trends);
+        const colors = ['#48bb78', '#fc8181', '#ed8936', '#4299e1', '#9f7aea'];
+
+        try {
+            this.charts.trendDistribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Sectors',
+                        data: data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#ffffff',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} sectors`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#4a5568'
+                            },
+                            grid: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#4a5568'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating trend distribution chart:', error);
+        }
     }
 
     applySearch() {
@@ -240,24 +363,30 @@ class SectorAnalysis {
             if (this.resultsCount) {
                 this.resultsCount.textContent = `${this.allSectors.length} sectors found`;
             }
-            // Update top performers too
-            this.displayTopSectorPerformers(this.allSectors);
             return;
         }
 
+        // Search in both sector names and stock names
         const filteredSectors = this.allSectors.filter(sector => {
+            // Check sector name
             const sectorMatch = sector.sector && sector.sector.toLowerCase().includes(searchTerm);
+            
+            // Check stock names in this sector
             const stockMatch = sector.stocks_data && sector.stocks_data.some(stock => 
                 stock.stock_name && stock.stock_name.toLowerCase().includes(searchTerm)
             );
+            
             return sectorMatch || stockMatch;
         });
 
+        // If stock search matched, show the sector with filtered stocks
         const resultSectors = filteredSectors.map(sector => {
             const stocks = sector.stocks_data || [];
             const filteredStocks = stocks.filter(stock => 
                 stock.stock_name && stock.stock_name.toLowerCase().includes(searchTerm)
             );
+            
+            // If sector name matched, show all stocks, else show only matching stocks
             const sectorNameMatch = sector.sector && sector.sector.toLowerCase().includes(searchTerm);
             return {
                 ...sector,
@@ -270,8 +399,6 @@ class SectorAnalysis {
         }
         
         this.renderSectors(resultSectors);
-        // Update top performers for filtered sectors
-        this.displayTopSectorPerformers(resultSectors);
     }
 
     renderSectors(sectors) {
@@ -351,19 +478,14 @@ class SectorAnalysis {
         const changeClass = change >= 0 ? 'change-positive' : 'change-negative';
         const trendClass = this.getTrendClass(sector.trend);
 
-        // Get stocks with sorting
-        let stocks = [...(sector.stocks_data || [])];
-        stocks = this.sortStocks(stocks);
-
-        // Get top 5 gainers, losers, neutral for stocks in this sector
+        // Get top 3 gainers, losers, neutral for this sector's stocks
+        const stocks = sector.stocks_data || [];
         const sortedStocks = [...stocks].sort((a, b) => 
             parseFloat(b.percentage_change) - parseFloat(a.percentage_change)
         );
-        const topGainers = sortedStocks.filter(s => parseFloat(s.percentage_change) > 0).slice(0, 5);
-        const topLosers = sortedStocks.filter(s => parseFloat(s.percentage_change) < 0).slice(-5).reverse();
-        const neutralStocks = sortedStocks
-            .filter(s => Math.abs(parseFloat(s.percentage_change)) <= 0.5)
-            .slice(0, 5);
+        const topGainers = sortedStocks.slice(0, 3);
+        const topLosers = sortedStocks.slice(-3).reverse();
+        const neutralStocks = sortedStocks.filter(s => Math.abs(parseFloat(s.percentage_change)) < 0.5).slice(0, 3);
 
         detailView.innerHTML = `
             <div class="sector-detail-content">
@@ -380,57 +502,43 @@ class SectorAnalysis {
                     </div>
                 </div>
 
-                <!-- Stock Top Performers - Top 5 -->
+                <!-- Top Performers for this sector -->
                 <div class="top-performers" style="margin-bottom: 24px;">
                     <div class="performer-card gainers">
-                        <div class="performer-title"><i class="fas fa-arrow-up"></i> Top 5 Stock Gainers</div>
-                        ${topGainers.map((s, i) => `
+                        <div class="performer-title"><i class="fas fa-arrow-up"></i> Top Gainers</div>
+                        ${topGainers.map(s => `
                             <div class="performer-item">
-                                <span class="name">${i + 1}. ${s.stock_name || 'N/A'}</span>
+                                <span class="name">${s.stock_name || 'N/A'}</span>
                                 <span class="value positive">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                             </div>
-                        `).join('') || '<div class="performer-item" style="color: var(--text-secondary);">No gainers</div>'}
+                        `).join('')}
                     </div>
                     <div class="performer-card losers">
-                        <div class="performer-title"><i class="fas fa-arrow-down"></i> Top 5 Stock Losers</div>
-                        ${topLosers.map((s, i) => `
+                        <div class="performer-title"><i class="fas fa-arrow-down"></i> Top Losers</div>
+                        ${topLosers.map(s => `
                             <div class="performer-item">
-                                <span class="name">${i + 1}. ${s.stock_name || 'N/A'}</span>
+                                <span class="name">${s.stock_name || 'N/A'}</span>
                                 <span class="value negative">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                             </div>
-                        `).join('') || '<div class="performer-item" style="color: var(--text-secondary);">No losers</div>'}
+                        `).join('')}
                     </div>
                     <div class="performer-card neutral">
-                        <div class="performer-title"><i class="fas fa-minus"></i> Top 5 Stock Neutral</div>
-                        ${neutralStocks.map((s, i) => `
+                        <div class="performer-title"><i class="fas fa-minus"></i> Neutral</div>
+                        ${neutralStocks.map(s => `
                             <div class="performer-item">
-                                <span class="name">${i + 1}. ${s.stock_name || 'N/A'}</span>
+                                <span class="name">${s.stock_name || 'N/A'}</span>
                                 <span class="value neutral">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                             </div>
-                        `).join('') || '<div class="performer-item" style="color: var(--text-secondary);">No neutral stocks</div>'}
+                        `).join('')}
                     </div>
                 </div>
 
-                <!-- Stock Table with Sorting -->
+                <div class="chart-container" style="height: 250px; margin-bottom: 24px;">
+                    <canvas id="sectorStockChart"></canvas>
+                </div>
+
                 <div class="stocks-table-wrapper">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-                        <span style="font-weight: 600; color: var(--text-primary);">All Stocks</span>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <select id="sortField" class="form-control" style="width: auto; min-width: 120px; padding: 6px 12px; font-size: 12px;">
-                                <option value="percentage_change">Sort by Change</option>
-                                <option value="price">Sort by Price</option>
-                                <option value="market_cap">Sort by Market Cap</option>
-                                <option value="net_profit">Sort by Net Profit</option>
-                                <option value="stock_name">Sort by Name</option>
-                            </select>
-                            <select id="sortOrder" class="form-control" style="width: auto; min-width: 100px; padding: 6px 12px; font-size: 12px;">
-                                <option value="desc">Highest First</option>
-                                <option value="asc">Lowest First</option>
-                            </select>
-                            <button id="applySortBtn" class="btn btn-sm btn-primary">Apply Sort</button>
-                        </div>
-                    </div>
-                    <table class="stocks-table" id="sectorStocksTable">
+                    <table class="stocks-table">
                         <thead>
                             <tr>
                                 <th>Stock Name</th>
@@ -443,7 +551,7 @@ class SectorAnalysis {
                             </tr>
                         </thead>
                         <tbody>
-                            ${this.renderStocks(stocks)}
+                            ${this.renderStocks(sector.stocks_data || [])}
                         </tbody>
                     </table>
                 </div>
@@ -452,66 +560,81 @@ class SectorAnalysis {
 
         document.body.appendChild(detailView);
 
-        // Add sort event listeners
-        const applySortBtn = detailView.querySelector('#applySortBtn');
-        const sortField = detailView.querySelector('#sortField');
-        const sortOrder = detailView.querySelector('#sortOrder');
-
-        if (applySortBtn && sortField && sortOrder) {
-            applySortBtn.addEventListener('click', () => {
-                const field = sortField.value;
-                const order = sortOrder.value;
-                this.currentSortField = field;
-                this.currentSortOrder = order;
-                
-                let sortedStocks = [...(sector.stocks_data || [])];
-                sortedStocks = this.sortStocks(sortedStocks, field, order);
-                
-                const tbody = detailView.querySelector('#sectorStocksTable tbody');
-                if (tbody) {
-                    tbody.innerHTML = this.renderStocks(sortedStocks);
-                }
-            });
-        }
+        // Create chart for sector stocks
+        setTimeout(() => {
+            this.createSectorStockChart(sector);
+        }, 100);
     }
 
-    sortStocks(stocks, field, order) {
-        if (!field) field = this.currentSortField || 'percentage_change';
-        if (!order) order = this.currentSortOrder || 'desc';
+    createSectorStockChart(sector) {
+        const ctx = document.getElementById('sectorStockChart');
+        if (!ctx) return;
 
-        return [...stocks].sort((a, b) => {
-            let valA, valB;
+        const stocks = sector.stocks_data || [];
+        const labels = stocks.map(s => s.stock_name || 'N/A');
+        const data = stocks.map(s => parseFloat(s.percentage_change) || 0);
+        const colors = data.map(v => v >= 0 ? '#48bb78' : '#fc8181');
 
-            switch(field) {
-                case 'price':
-                    valA = parseFloat(a.price) || 0;
-                    valB = parseFloat(b.price) || 0;
-                    break;
-                case 'market_cap':
-                    valA = parseFloat(a.market_cap) || 0;
-                    valB = parseFloat(b.market_cap) || 0;
-                    break;
-                case 'net_profit':
-                    valA = parseFloat(a.net_profit) || 0;
-                    valB = parseFloat(b.net_profit) || 0;
-                    break;
-                case 'stock_name':
-                    valA = (a.stock_name || '').toLowerCase();
-                    valB = (b.stock_name || '').toLowerCase();
-                    return order === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                case 'percentage_change':
-                default:
-                    valA = parseFloat(a.percentage_change) || 0;
-                    valB = parseFloat(b.percentage_change) || 0;
-                    break;
-            }
+        // Destroy existing chart if any
+        if (this.charts.sectorStock) {
+            this.charts.sectorStock.destroy();
+        }
 
-            if (order === 'asc') {
-                return valA - valB;
-            } else {
-                return valB - valA;
-            }
-        });
+        try {
+            this.charts.sectorStock = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stock Performance (%)',
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#ffffff',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0'
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#4a5568'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#4a5568',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating sector stock chart:', error);
+        }
     }
 
     renderStocks(stocks) {
@@ -650,7 +773,7 @@ class SectorAnalysis {
 
     hideResults() {
         if (this.resultsContainer) this.resultsContainer.style.display = 'none';
-        if (this.topPerformersSection) this.topPerformersSection.style.display = 'none';
+        if (this.chartsSection) this.chartsSection.style.display = 'none';
         if (this.noData) this.noData.style.display = 'none';
         if (this.topPerformers) this.topPerformers.innerHTML = '';
     }
