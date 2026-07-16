@@ -1,28 +1,29 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi import Request, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import Request, Query
+from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from curl_cffi import requests
 from lxml import html
 import pandas as pd
-import uvicorn
 import json
-import asyncio
+import os
 from cachetools import TTLCache
-from typing import Optional
 
 app = FastAPI(title="Sector Analysis Dashboard")
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Templates
-templates = Jinja2Templates(directory="templates")
-
 # Cache configuration (TTL: 30 minutes)
 cache = TTLCache(maxsize=100, ttl=1800)
+
+# Get the directory where this file is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Mount static files
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+
+# Templates
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 durationMapping = {
     '1d': '1 day',
@@ -66,12 +67,16 @@ def read_root():
 
 def get_response(duration):
     """Fetch data from MoneyControl API"""
-    res = requests.get(
-        f'https://api.moneycontrol.com/mcapi/v1/sector/listing?dur={duration}&section=sector',
-        impersonate='edge99'
-    )
-    if res.status_code == 200:
-        return res.json()
+    try:
+        res = requests.get(
+            f'https://api.moneycontrol.com/mcapi/v1/sector/listing?dur={duration}&section=sector',
+            impersonate='edge99',
+            timeout=30
+        )
+        if res.status_code == 200:
+            return res.json()
+    except Exception as e:
+        print(f"Error fetching data: {e}")
     return None
 
 async def process_sector_data(duration):
@@ -103,7 +108,7 @@ async def process_sector_data(duration):
             }
             
             try:
-                res = requests.get(sector_url, impersonate='edge99', timeout=10)
+                res = requests.get(sector_url, impersonate='edge99', timeout=15)
                 if res.status_code == 200:
                     htmlData = res.text
                     tree = html.fromstring(htmlData)
@@ -193,5 +198,7 @@ async def clear_all_cache():
     cache.clear()
     return {'message': 'All cache cleared'}
 
-if __name__ == '__main__':
-    uvicorn.run(app=app, host='0.0.0.0', port=8888)
+# For local development
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
