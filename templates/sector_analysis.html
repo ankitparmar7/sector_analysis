@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sector Analysis - Market Insight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="toast" class="toast" style="display: none;">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <span id="toastMessage"></span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Market<span>Insight</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sector-analysis" class="nav-item active">
+                    <i class="fas fa-building"></i>
+                    <span>Sector Analysis</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Watchlist</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>Sector Analysis</h1>
+                    <span class="header-date"><i class="far fa-calendar-alt"></i> {{ current_date }}</span>
+                </div>
+                <div class="header-right">
+                    <button id="clearCache" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Clear Cache
+                    </button>
+                    <button id="exportData" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </header>
+
+            <!-- Controls with Search -->
+            <div class="controls-card">
+                <div class="controls-row">
+                    <div class="control-group">
+                        <label><i class="fas fa-clock"></i> Duration</label>
+                        <select id="durationSelect" class="form-control">
+                            <option value="">Select Duration</option>
+                            {% for key, value in durations.items() %}
+                            <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="control-group" style="flex: 2;">
+                        <label><i class="fas fa-search"></i> Search Sectors or Stocks</label>
+                        <input type="text" id="searchInput" placeholder="Search by sector or stock name..." class="form-control">
+                    </div>
+                    <button id="fetchData" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Analyze
+                    </button>
+                </div>
+                <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <span>Loading sector data...</span>
+                    <div class="loading-progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Sector Performers -->
+            <div class="top-performers-section" id="topPerformersSection" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-trophy"></i> Top Sector Performers</h2>
+                    <span class="section-badge">Analysis</span>
+                </div>
+                <div class="top-performers" id="topPerformers"></div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsContainer" style="display: none;">
+                <div class="results-header">
+                    <div>
+                        <h2><i class="fas fa-list-ul"></i> Sector Grid</h2>
+                        <span class="results-count" id="resultsCount">0 sectors found</span>
+                    </div>
+                    <div class="results-actions">
+                        <span id="cacheStatus" class="cache-status"></span>
+                    </div>
+                </div>
+                <div id="sectorGrid" class="sector-grid"></div>
+            </div>
+
+            <div id="noData" class="no-data" style="display: none;">
+                <i class="fas fa-database"></i>
+                <h3>No Data Available</h3>
+                <p>Select a duration and click "Analyze" to view sector data.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/sector_analysis.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+curl_cffi
+lxml
+pandas
+cachetools
+python-multipart
+jinja2

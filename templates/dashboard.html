@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Market Insight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" style="display: none;">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <span id="toastMessage"></span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Market<span>Insight</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item active">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sector-analysis" class="nav-item">
+                    <i class="fas fa-building"></i>
+                    <span>Sector Analysis</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Watchlist</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <span class="header-date"><i class="far fa-calendar-alt"></i> {{ current_date }}</span>
+                </div>
+                <div class="header-right">
+                    <button id="clearCache" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Clear Cache
+                    </button>
+                    <button id="exportData" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </header>
+
+            <!-- Controls -->
+            <div class="controls-card">
+                <div class="controls-row">
+                    <div class="control-group">
+                        <label><i class="fas fa-clock"></i> Duration</label>
+                        <select id="durationSelect" class="form-control">
+                            <option value="">Select Duration</option>
+                            {% for key, value in durations.items() %}
+                            <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button id="fetchData" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Analyze Market
+                    </button>
+                </div>
+                <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <span>Analyzing market data...</span>
+                    <div class="loading-progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid" id="statsGrid" style="display: none;">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon"><i class="fas fa-building"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Sectors</span>
+                        <span class="stat-value" id="totalSectors">0</span>
+                    </div>
+                    <div class="stat-trend" id="sectorTrend">+0%</div>
+                </div>
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Stocks</span>
+                        <span class="stat-value" id="totalStocks">0</span>
+                    </div>
+                    <div class="stat-trend" id="stockTrend">+0%</div>
+                </div>
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Avg Performance</span>
+                        <span class="stat-value" id="avgPerformance">0%</span>
+                    </div>
+                    <div class="stat-trend" id="perfTrend">0%</div>
+                </div>
+                <div class="stat-card stat-card-info">
+                    <div class="stat-icon"><i class="fas fa-trend-up"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Market Sentiment</span>
+                        <span class="stat-value" id="marketSentiment">Neutral</span>
+                    </div>
+                    <div class="stat-trend" id="sentimentTrend">•</div>
+                </div>
+            </div>
+
+            <!-- Charts Section - Only Sector Performance Comparison -->
+            <div class="charts-section" id="chartsSection" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Sector Performance Comparison</h2>
+                    <span class="section-badge">All Sectors</span>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-card chart-card-full">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-bar"></i> Performance by Sector</h3>
+                            <span class="chart-badge">Comparison</span>
+                        </div>
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="sectorComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Data State -->
+            <div id="noData" class="no-data" style="display: none;">
+                <i class="fas fa-database"></i>
+                <h3>No Data Available</h3>
+                <p>Select a duration and click "Analyze Market" to get started.</p>
+                <div class="no-data-actions">
+                    <button class="btn btn-primary" onclick="document.getElementById('durationSelect').focus()">
+                        <i class="fas fa-clock"></i> Choose Duration
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
