@@ -27,7 +27,6 @@ if os.path.exists(STATIC_DIR):
 # Initialize templates with absolute path and autoescape
 templates = Jinja2Templates(
     directory=TEMPLATES_DIR,
-    autoescape=True
 )
 
 durationMapping = {
