@@ -1,8 +1,8 @@
 {
-  "name": "sector-analysis-dashboard",
-  "version": "1.0.0",
-  "description": "Sector Analysis Dashboard for Market Insight",
-  "scripts": {
-    "vercel-build": "echo Hello"
-  }
+    "name": "sector-analysis-dashboard",
+    "version": "1.0.0",
+    "description": "Sector Analysis Dashboard for Market Insight",
+    "scripts": {
+        "vercel-build": "echo Hello"
+    }
 }

@@ -37,6 +37,9 @@ durationMapping = {
     '5y': '5 years',
 }
 
+# Convert to list of tuples for template compatibility
+durationItems = list(durationMapping.items())
+
 todayDate = (datetime.now() - timedelta(days=0)).strftime('%d-%m-%Y')
 
 @app.get("/")
@@ -44,8 +47,9 @@ async def dashboard(request: Request):
     """Serve the main dashboard"""
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
-        "durations": durationMapping,
-        "current_date": todayDate
+        "durations": durationItems,  # Use list of tuples instead of dict
+        "current_date": todayDate,
+        "durationMapping": durationMapping  # Keep for reference if needed
     })
 
 @app.get("/sector-analysis")
@@ -53,8 +57,9 @@ async def sector_analysis(request: Request):
     """Serve the sector analysis page"""
     return templates.TemplateResponse("sector_analysis.html", {
         "request": request,
-        "durations": durationMapping,
-        "current_date": todayDate
+        "durations": durationItems,  # Use list of tuples instead of dict
+        "current_date": todayDate,
+        "durationMapping": durationMapping  # Keep for reference if needed
     })
 
 @app.get("/api/guide")
@@ -99,7 +104,7 @@ async def process_sector_data(duration):
             sector_url = f"https://www.moneycontrol.com/markets/sector-analysis/{row['slug']}"
             sectorData = {
                 'date': todayDate,
-                'duration': durationMapping[duration],
+                'duration': durationMapping.get(duration, duration),
                 'trend': trend,
                 'sector': row['sector'],
                 'percentage_change': row['mCapPerChange'],
