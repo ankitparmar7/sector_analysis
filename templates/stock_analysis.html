@@ -9,12 +9,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
+        /* ===== STOCK GRID ===== */
         .stock-analysis-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
+
         .stock-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -22,38 +24,64 @@
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
-            cursor: pointer;
+            position: relative;
         }
+
         .stock-card:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-hover);
         }
+
+        /* ===== STOCK CARD HEADER ===== */
         .stock-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
+
+        .stock-clickable {
+            cursor: pointer;
+            flex: 1;
+        }
+
         .stock-name {
             font-size: 16px;
             font-weight: 700;
             color: var(--text-primary);
         }
+
         .stock-code {
             font-size: 12px;
             color: var(--text-secondary);
             font-family: monospace;
         }
+
+        .stock-card-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== STOCK CHANGE ===== */
         .stock-change {
             font-weight: 700;
             font-size: 16px;
             padding: 4px 12px;
             border-radius: 8px;
         }
+
         .change-positive { color: #48bb78; }
         .change-negative { color: #fc8181; }
         .change-neutral { color: #ed8936; }
-        
+
+        /* ===== STOCK CARD BODY ===== */
+        .stock-card-body {
+            cursor: pointer;
+        }
+
         .stock-card-body .stock-detail {
             display: flex;
             justify-content: space-between;
@@ -61,9 +89,12 @@
             font-size: 13px;
             color: var(--text-secondary);
         }
+
         .stock-card-body .stock-detail strong {
             color: var(--text-primary);
         }
+
+        /* ===== STOCK TREND ===== */
         .stock-card-body .stock-trend {
             display: inline-block;
             padding: 4px 12px;
@@ -72,10 +103,12 @@
             font-weight: 600;
             margin-top: 8px;
         }
+
         .trend-bullish { background: rgba(72,187,120,0.15); color: #48bb78; }
         .trend-bearish { background: rgba(252,129,129,0.15); color: #fc8181; }
         .trend-neutral { background: rgba(237,137,54,0.15); color: #ed8936; }
-        
+
+        /* ===== STOCK SECTOR TAG ===== */
         .stock-sector-tag {
             display: inline-block;
             padding: 2px 10px;
@@ -85,6 +118,8 @@
             color: var(--text-secondary);
             margin-top: 8px;
         }
+
+        /* ===== STOCK STATS MINI ===== */
         .stock-stats-mini {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -93,16 +128,78 @@
             padding-top: 12px;
             border-top: 1px solid var(--border-color);
         }
+
         .stock-stats-mini div {
             font-size: 12px;
             color: var(--text-secondary);
         }
+
         .stock-stats-mini div strong {
             color: var(--text-primary);
             display: block;
             font-size: 14px;
         }
 
+/* ===== WATCHLIST BUTTON ===== */
+.watchlist-btn {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.watchlist-btn:hover {
+    transform: scale(1.15);
+    background: var(--hover-bg);
+    border-color: var(--primary);
+}
+
+/* When in watchlist - filled yellow star */
+.watchlist-btn.in-watchlist {
+    background: rgba(246, 173, 85, 0.15);
+    border-color: #f6ad55;
+}
+
+.watchlist-btn.in-watchlist:hover {
+    background: rgba(246, 173, 85, 0.3);
+    border-color: #e53e3e;
+}
+
+.watchlist-btn.in-watchlist i {
+    color: #f6ad55;
+}
+
+/* When NOT in watchlist - yellow outline star */
+.watchlist-btn:not(.in-watchlist) {
+    background: transparent;
+    border: 2px solid #f6ad55;
+}
+
+.watchlist-btn:not(.in-watchlist):hover {
+    background: rgba(246, 173, 85, 0.1);
+    border-color: #ed8936;
+}
+
+.watchlist-btn:not(.in-watchlist) i {
+    color: #f6ad55;
+}
+
+.watchlist-btn i {
+    font-size: 20px;
+}
+
+        /* ===== STATS GRID TOP ===== */
         .stats-grid-top {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -180,6 +277,7 @@
         .stat-card-top.bearish::before { background: linear-gradient(90deg, #fc8181, #e53e3e); }
         .stat-card-top.bearish .stat-icon-wrapper { background: rgba(252, 129, 129, 0.12); color: #fc8181; }
 
+        /* ===== CONTROLS CARD ===== */
         .controls-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -219,6 +317,7 @@
             color: var(--primary);
         }
 
+        /* ===== FORM CONTROLS ===== */
         .form-control {
             width: 100%;
             padding: 10px 16px;
@@ -238,6 +337,7 @@
             box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
         }
 
+        /* ===== BUTTONS ===== */
         .btn {
             padding: 10px 24px;
             height: 44px;
@@ -278,6 +378,7 @@
             transform: translateY(-2px);
         }
 
+        /* ===== FILTER ROW ===== */
         .filter-row {
             display: flex;
             flex-wrap: wrap;
@@ -337,6 +438,7 @@
             color: var(--text-primary);
         }
 
+        /* ===== RESULTS HEADER ===== */
         .results-header {
             display: flex;
             justify-content: space-between;
@@ -371,6 +473,7 @@
             font-weight: 500;
         }
 
+        /* ===== PAGINATION ===== */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -428,6 +531,7 @@
             padding: 8px 12px;
         }
 
+        /* ===== LOADING INDICATOR ===== */
         .loading-indicator {
             margin-top: 16px;
             display: flex;
@@ -453,6 +557,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* ===== NO DATA ===== */
         .no-data {
             text-align: center;
             padding: 80px 20px;
@@ -478,6 +583,7 @@
             font-size: 16px;
         }
 
+        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -525,6 +631,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* ===== TOP HEADER ===== */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -552,6 +659,195 @@
             gap: 10px;
         }
 
+        /* ===== WATCHLIST MODAL ===== */
+        .watchlist-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            animation: modalFadeIn 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .watchlist-modal.show {
+            display: flex;
+        }
+
+        .watchlist-modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .watchlist-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .watchlist-modal-header h2 i {
+            color: #f6ad55;
+            margin-right: 10px;
+        }
+
+        .watchlist-modal-close {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+        }
+
+        .watchlist-modal-close:hover {
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .watchlist-modal-body {
+            padding: 0;
+        }
+
+        .watchlist-modal-body .stock-info {
+            background: var(--bg-primary);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-modal-body .stock-info .name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .watchlist-modal-body .stock-info .code {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .watchlist-modal-body .stock-info .price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        .watchlist-modal-body label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .watchlist-modal-body label i {
+            margin-right: 6px;
+            color: var(--primary);
+        }
+
+        .watchlist-modal-body textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-modal-body textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+
+        .watchlist-modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .watchlist-modal-footer .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .watchlist-modal-footer .btn-cancel {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .watchlist-modal-footer .btn-cancel:hover {
+            background: var(--hover-bg);
+        }
+
+        .watchlist-modal-footer .btn-add {
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(246, 173, 85, 0.3);
+        }
+
+        .watchlist-modal-footer .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(246, 173, 85, 0.4);
+        }
+
+        .watchlist-modal-footer .btn-remove {
+            background: linear-gradient(135deg, #fc8181, #e53e3e);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(252, 129, 129, 0.3);
+        }
+
+        .watchlist-modal-footer .btn-remove:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(252, 129, 129, 0.4);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-30px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .stats-grid-top { grid-template-columns: repeat(2, 1fr); }
         }
@@ -570,14 +866,41 @@
             .top-header { flex-direction: column; align-items: flex-start; }
             .header-right { width: 100%; }
             .header-right .btn { flex: 1; justify-content: center; }
+            .watchlist-modal-content { padding: 24px; }
         }
 
         @media (max-width: 480px) {
             .stats-grid-top { grid-template-columns: 1fr; }
+            .watchlist-modal-content { padding: 20px; }
         }
     </style>
 </head>
 <body>
+    <!-- Watchlist Modal -->
+    <div id="watchlistModal" class="watchlist-modal">
+        <div class="watchlist-modal-content">
+            <div class="watchlist-modal-header">
+                <h2><i class="fas fa-star"></i> <span id="modalTitle">Add to Watchlist</span></h2>
+                <button class="watchlist-modal-close" onclick="closeWatchlistModal()">&times;</button>
+            </div>
+            <div class="watchlist-modal-body">
+                <div class="stock-info">
+                    <div class="name" id="modalStockName">Stock Name</div>
+                    <div class="code" id="modalStockCode">Code</div>
+                    <div class="price" id="modalStockPrice">₹0.00</div>
+                </div>
+                <label for="modalComment"><i class="fas fa-comment"></i> Comment (optional)</label>
+                <textarea id="modalComment" placeholder="Add your comments about this stock..."></textarea>
+            </div>
+            <div class="watchlist-modal-footer">
+                <button class="btn btn-cancel" onclick="closeWatchlistModal()">Cancel</button>
+                <button class="btn btn-add" id="modalActionBtn" onclick="confirmWatchlistAction()">
+                    <i class="fas fa-plus"></i> Add to Watchlist
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast" style="display: none;">
         <div class="toast-content">
             <i class="fas fa-check-circle toast-icon"></i>
@@ -605,7 +928,7 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Stock Analysis</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/watchlist" class="nav-item">
                     <i class="fas fa-star"></i>
                     <span>Watchlist</span>
                 </a>
@@ -749,6 +1072,8 @@
         let currentPage = 1;
         const ITEMS_PER_PAGE = 100;
         let toastTimeout = null;
+        let pendingWatchlistStock = null;
+        let isRemoveAction = false;
 
         document.getElementById('themeToggle').addEventListener('click', function() {
             const html = document.documentElement;
@@ -766,6 +1091,126 @@
             document.getElementById('themeToggle').querySelector('span').textContent = 'Light Mode';
             document.getElementById('themeToggle').querySelector('i').className = 'fas fa-sun';
         }
+
+        // Watchlist Functions
+        function getWatchlist() {
+            try {
+                const data = localStorage.getItem('watchlist');
+                return data ? JSON.parse(data) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveWatchlist(watchlist) {
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+        }
+
+        function isStockInWatchlist(stockCode) {
+            const watchlist = getWatchlist();
+            return watchlist.some(item => item.stock_code === stockCode);
+        }
+
+        // Watchlist Modal Functions
+        function openWatchlistModal(stockCode, stockName, stockUrl, price, change, sector, isRemove = false) {
+            event.stopPropagation();
+            
+            pendingWatchlistStock = {
+                stock_code: stockCode,
+                stock_name: stockName,
+                stock_url: stockUrl,
+                price: price,
+                percentage_change: change,
+                sector: sector
+            };
+            isRemoveAction = isRemove;
+
+            const modal = document.getElementById('watchlistModal');
+            document.getElementById('modalStockName').textContent = stockName;
+            document.getElementById('modalStockCode').textContent = stockCode + ' • ' + sector;
+            document.getElementById('modalStockPrice').textContent = '₹' + price;
+            
+            const title = document.getElementById('modalTitle');
+            const actionBtn = document.getElementById('modalActionBtn');
+            const commentLabel = document.querySelector('label[for="modalComment"]');
+            const commentField = document.getElementById('modalComment');
+            
+            if (isRemove) {
+                title.textContent = 'Remove from Watchlist';
+                actionBtn.innerHTML = '<i class="fas fa-trash"></i> Remove from Watchlist';
+                actionBtn.className = 'btn btn-remove';
+                // Check if there's a comment to show
+                const watchlist = getWatchlist();
+                const existing = watchlist.find(item => item.stock_code === stockCode);
+                if (existing && existing.comment) {
+                    commentField.value = existing.comment;
+                    commentField.style.display = 'block';
+                    commentLabel.style.display = 'block';
+                } else {
+                    commentField.style.display = 'none';
+                    commentLabel.style.display = 'none';
+                }
+            } else {
+                title.textContent = 'Add to Watchlist';
+                actionBtn.innerHTML = '<i class="fas fa-plus"></i> Add to Watchlist';
+                actionBtn.className = 'btn btn-add';
+                commentField.style.display = 'block';
+                commentLabel.style.display = 'block';
+                commentField.value = '';
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeWatchlistModal() {
+            document.getElementById('watchlistModal').classList.remove('show');
+            pendingWatchlistStock = null;
+        }
+
+        function confirmWatchlistAction() {
+            if (!pendingWatchlistStock) return;
+
+            const watchlist = getWatchlist();
+            const stockCode = pendingWatchlistStock.stock_code;
+
+            if (isRemoveAction) {
+                const filtered = watchlist.filter(item => item.stock_code !== stockCode);
+                saveWatchlist(filtered);
+                showToast(`Removed ${pendingWatchlistStock.stock_name} from watchlist`, 'success');
+            } else {
+                const comment = document.getElementById('modalComment').value.trim();
+                const newItem = {
+                    stock_code: stockCode,
+                    stock_name: pendingWatchlistStock.stock_name,
+                    stock_url: pendingWatchlistStock.stock_url,
+                    price: pendingWatchlistStock.price,
+                    percentage_change: pendingWatchlistStock.percentage_change,
+                    sector: pendingWatchlistStock.sector,
+                    comment: comment || '',
+                    added_date: new Date().toISOString()
+                };
+                watchlist.push(newItem);
+                saveWatchlist(watchlist);
+                showToast(`Added ${pendingWatchlistStock.stock_name} to watchlist!`, 'success');
+            }
+
+            closeWatchlistModal();
+            applyFiltersAndSort();
+        }
+
+        // Click outside modal to close
+        document.getElementById('watchlistModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWatchlistModal();
+            }
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeWatchlistModal();
+            }
+        });
 
         async function fetchData() {
             const loadingDiv = document.getElementById('loadingIndicator');
@@ -875,18 +1320,27 @@
                 const trendIcon = change > 0 ? 'arrow-up' : change < 0 ? 'arrow-down' : 'minus';
                 const trendLabel = change > 0 ? 'Bullish' : change < 0 ? 'Bearish' : 'Neutral';
                 
+                const isInWatchlist = isStockInWatchlist(stock.stock_code);
+                
                 html += `
-                    <div class="stock-card" onclick="window.open('${stock.stock_url || '#'}', '_blank')">
+                    <div class="stock-card">
                         <div class="stock-card-header">
-                            <div>
+                            <div class="stock-clickable" onclick="window.open('${stock.stock_url || '#'}', '_blank')">
                                 <div class="stock-name">${stock.stock_name || 'N/A'}</div>
                                 <div class="stock-code">${stock.stock_code || 'N/A'}</div>
                             </div>
-                            <span class="stock-change ${changeClass}">
-                                ${change > 0 ? '+' : ''}${change.toFixed(2)}%
-                            </span>
+                            <div class="stock-card-header-right">
+                                <span class="stock-change ${changeClass}">
+                                    ${change > 0 ? '+' : ''}${change.toFixed(2)}%
+                                </span>
+                                <button onclick="openWatchlistModal('${stock.stock_code}', '${stock.stock_name}', '${stock.stock_url}', '${stock.price}', ${change}, '${stock.sector}', ${isInWatchlist})" 
+                                        class="watchlist-btn ${isInWatchlist ? 'in-watchlist' : ''}" 
+                                        title="${isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                                    <i class="fas ${isInWatchlist ? 'fa-star' : 'fa-star-o'}"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="stock-card-body">
+                        <div class="stock-card-body" onclick="window.open('${stock.stock_url || '#'}', '_blank')" style="cursor: pointer;">
                             <div class="stock-detail">
                                 <span>Price</span>
                                 <strong>₹${stock.price || 'N/A'}</strong>

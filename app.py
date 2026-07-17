@@ -15,7 +15,7 @@ from cachetools import TTLCache
 app = FastAPI()
 
 # Cache configuration (TTL: 30 minutes)
-cache = TTLCache(maxsize=100, ttl=86400)
+cache = TTLCache(maxsize=100, ttl=1800)
 
 # Get the absolute path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -68,6 +68,15 @@ async def sector_analysis_page(request: Request):
 async def stock_analysis_page(request: Request):
     """Serve the stock analysis UI"""
     return templates.TemplateResponse("stock_analysis.html", {
+        "request": request,
+        "durations": durationItems,
+        "current_date": todayDate
+    })
+
+@app.get("/watchlist")
+async def watchlist_page(request: Request):
+    """Serve the watchlist UI"""
+    return templates.TemplateResponse("watchlist.html", {
         "request": request,
         "durations": durationItems,
         "current_date": todayDate
