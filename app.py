@@ -15,7 +15,7 @@ from cachetools import TTLCache
 app = FastAPI()
 
 # Cache configuration (TTL: 30 minutes)
-cache = TTLCache(maxsize=100, ttl=1800)
+cache = TTLCache(maxsize=100, ttl=86400)
 
 # Get the absolute path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
