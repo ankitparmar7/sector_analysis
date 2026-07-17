@@ -16,9 +16,6 @@
             gap: 20px;
             margin-bottom: 24px;
         }
-        .chart-card-full {
-            grid-column: 1 / -1;
-        }
         .chart-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -318,6 +315,8 @@
             align-items: center;
             margin-bottom: 12px;
             padding: 0 4px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .modal-table-header h3 {
             font-size: 16px;
@@ -368,7 +367,106 @@
             font-weight: 600;
         }
 
-        /* Responsive */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .results-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text-primary);
+        }
+        .results-header h2 i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+        .results-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+        .cache-status {
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .controls-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .controls-card .search-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .controls-card .search-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .controls-card .search-group label i {
+            margin-right: 6px;
+            color: var(--primary);
+        }
+        .controls-card .form-control {
+            width: 100%;
+            padding: 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            height: 44px;
+        }
+        .controls-card .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+        .controls-card .btn {
+            padding: 10px 24px;
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            margin-top: 22px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+        }
+
         @media (max-width: 1024px) {
             .top-performers { grid-template-columns: 1fr 1fr; }
             .charts-grid-2 { grid-template-columns: 1fr; }
@@ -384,6 +482,8 @@
             .modal-chart-container { height: 200px; }
             .stocks-table { font-size: 12px; }
             .stocks-table th, .stocks-table td { padding: 8px 10px; }
+            .controls-card { flex-direction: column; align-items: stretch; }
+            .controls-card .btn { margin-top: 0; }
         }
         @media (max-width: 480px) {
             .modal-stats { grid-template-columns: 1fr; }
@@ -415,6 +515,10 @@
                 <a href="/sector-analysis" class="nav-item active">
                     <i class="fas fa-building"></i>
                     <span>Sector Analysis</span>
+                </a>
+                <a href="/stock-analysis" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Stock Analysis</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-star"></i>
@@ -450,42 +554,18 @@
                 </div>
             </header>
 
-            <!-- Controls with Search -->
+            <!-- Search Controls -->
             <div class="controls-card">
-                <div class="controls-row">
-                    <div class="control-group">
-                        <label><i class="fas fa-clock"></i> Duration</label>
-                        <select id="durationSelect" class="form-control">
-                            <option value="">Select Duration</option>
-                            {% for key, value in durations %}
-                            <option value="{{ key }}">{{ value }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="control-group" style="flex: 2;">
-                        <label><i class="fas fa-search"></i> Search Sectors or Stocks</label>
-                        <input type="text" id="searchInput" placeholder="Search by sector or stock name..." class="form-control">
-                    </div>
-                    <button id="fetchDataBtn" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i> Analyze
-                    </button>
+                <div class="search-group">
+                    <label><i class="fas fa-search"></i> Search Sectors</label>
+                    <input type="text" id="searchInput" placeholder="Search by sector name..." class="form-control">
                 </div>
-                <div class="loading-indicator" id="loadingIndicator" style="display: none;">
-                    <div class="spinner"></div>
-                    <span>Loading sector data...</span>
-                </div>
+                <button id="fetchDataBtn" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Refresh Data
+                </button>
             </div>
 
-            <!-- Top Performers -->
-            <div id="topPerformersContainer" style="display: none;">
-                <div class="section-header">
-                    <h2><i class="fas fa-trophy"></i> Top Performers</h2>
-                    <span class="section-badge">Gainers & Losers</span>
-                </div>
-                <div class="top-performers" id="topPerformers"></div>
-            </div>
-
-            <!-- Charts Section - 2 Grid Row -->
+            <!-- Charts Section - Moved to top -->
             <div id="chartsSection" style="display: none;">
                 <div class="section-header">
                     <h2><i class="fas fa-chart-line"></i> Sector Overview</h2>
@@ -513,6 +593,15 @@
                 </div>
             </div>
 
+            <!-- Top Performers -->
+            <div id="topPerformersContainer" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-trophy"></i> Top Performers</h2>
+                    <span class="section-badge">Gainers & Losers</span>
+                </div>
+                <div class="top-performers" id="topPerformers"></div>
+            </div>
+
             <!-- Results -->
             <div id="resultsContainer" style="display: none;">
                 <div class="results-header">
@@ -530,7 +619,7 @@
             <div id="noData" class="no-data" style="display: none;">
                 <i class="fas fa-database"></i>
                 <h3>No Data Available</h3>
-                <p>Select a duration and click "Analyze" to view sector data.</p>
+                <p>Click "Refresh Data" to view sector data.</p>
             </div>
         </main>
     </div>
@@ -565,8 +654,8 @@
                                 <th>Stock</th>
                                 <th>Price</th>
                                 <th>Change</th>
-                                <th>Market Cap</th>
-                                <th>Net Profit</th>
+                                <th>Market Cap (Cr)</th>
+                                <th>Net Profit (Cr)</th>
                                 <th>Trend</th>
                             </tr>
                         </thead>
@@ -606,7 +695,6 @@
             const modal = document.getElementById('sectorModal');
             document.getElementById('modalSectorName').textContent = sector.sector || 'N/A';
             
-            // Badge
             const trendClass = sector.trend ? sector.trend.toLowerCase() : 'neutral';
             document.getElementById('modalSectorBadge').innerHTML = `
                 <span class="trend-badge trend-${trendClass}">
@@ -615,7 +703,6 @@
                 </span>
             `;
 
-            // Stats
             const change = parseFloat(sector.percentage_change) || 0;
             const statsHtml = `
                 <div class="modal-stat">
@@ -637,7 +724,6 @@
             `;
             document.getElementById('modalStats').innerHTML = statsHtml;
 
-            // Top Performers for this sector
             const stocks = sector.stocks_data || [];
             const sortedStocks = [...stocks].sort((a, b) => 
                 parseFloat(b.percentage_change) - parseFloat(a.percentage_change)
@@ -649,38 +735,36 @@
             document.getElementById('modalTopPerformers').innerHTML = `
                 <div class="performer-card gainers">
                     <div class="performer-title"><i class="fas fa-arrow-up"></i> Top 5 Gainers</div>
-                    ${gainers.map(s => `
+                    ${gainers.length > 0 ? gainers.map(s => `
                         <div class="performer-item">
                             <span class="name">${s.stock_name || 'N/A'}</span>
                             <span class="value positive">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                         </div>
-                    `).join('')}
+                    `).join('') : '<div class="performer-item"><span class="name">No gainers</span></div>'}
                 </div>
                 <div class="performer-card losers">
                     <div class="performer-title"><i class="fas fa-arrow-down"></i> Top 5 Losers</div>
-                    ${losers.map(s => `
+                    ${losers.length > 0 ? losers.map(s => `
                         <div class="performer-item">
                             <span class="name">${s.stock_name || 'N/A'}</span>
                             <span class="value negative">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                         </div>
-                    `).join('')}
+                    `).join('') : '<div class="performer-item"><span class="name">No losers</span></div>'}
                 </div>
                 <div class="performer-card neutral">
                     <div class="performer-title"><i class="fas fa-minus"></i> Top 5 Neutral</div>
-                    ${neutral.map(s => `
+                    ${neutral.length > 0 ? neutral.map(s => `
                         <div class="performer-item">
                             <span class="name">${s.stock_name || 'N/A'}</span>
                             <span class="value neutral">${s.percentage_change >= 0 ? '+' : ''}${s.percentage_change.toFixed(2)}%</span>
                         </div>
-                    `).join('')}
+                    `).join('') : '<div class="performer-item"><span class="name">No neutral stocks</span></div>'}
                 </div>
             `;
 
-            // Stock count
             const stockCount = sector.stocks_data ? sector.stocks_data.length : 0;
             document.getElementById('modalStockCount').textContent = `${stockCount} stocks`;
 
-            // Stocks Table
             const stocksData = sector.stocks_data || [];
             let tableHtml = '';
             if (stocksData.length === 0) {
@@ -689,13 +773,15 @@
                 stocksData.forEach(stock => {
                     const changeClass = stock.percentage_change >= 0 ? 'change-positive' : 'change-negative';
                     const trendClass = stock.stock_trend ? stock.stock_trend.toLowerCase() : 'neutral';
+                    const marketCapCr = stock.market_cap ? stock.market_cap.toFixed(2) : 'N/A';
+                    const netProfitCr = stock.net_profit ? stock.net_profit.toFixed(2) : 'N/A';
                     tableHtml += `
                         <tr>
                             <td><a href="${stock.stock_url || '#'}" target="_blank" class="stock-link">${stock.stock_name || 'N/A'}</a></td>
                             <td>₹${stock.price || 'N/A'}</td>
                             <td class="${changeClass}">${stock.percentage_change >= 0 ? '+' : ''}${stock.percentage_change.toFixed(2)}%</td>
-                            <td>${formatCurrency(stock.market_cap)}</td>
-                            <td>${formatCurrency(stock.net_profit)}</td>
+                            <td>${marketCapCr}</td>
+                            <td>${netProfitCr}</td>
                             <td><span class="stock-trend-badge trend-${trendClass}">${stock.stock_trend || 'N/A'}</span></td>
                         </tr>
                     `;
@@ -703,7 +789,6 @@
             }
             document.getElementById('modalStocksBody').innerHTML = tableHtml;
 
-            // Create chart for stocks
             setTimeout(() => {
                 createModalChart(sector);
             }, 100);
@@ -735,9 +820,7 @@
             const data = stocks.map(s => parseFloat(s.percentage_change) || 0);
             const colors = data.map(v => v >= 0 ? '#48bb78' : '#fc8181');
 
-            if (stocks.length === 0) {
-                return;
-            }
+            if (stocks.length === 0) return;
 
             modalChart = new Chart(ctx, {
                 type: 'bar',
@@ -789,31 +872,20 @@
             });
         }
 
-        // Click outside modal to close
         document.getElementById('sectorModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSectorModal();
-            }
+            if (e.target === this) closeSectorModal();
         });
 
-        // Escape key to close modal
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeSectorModal();
-            }
+            if (e.key === 'Escape') closeSectorModal();
         });
 
         async function fetchData() {
-            const duration = document.getElementById('durationSelect').value;
-            if (!duration) {
-                showToast('Please select a duration', 'warning');
-                return;
-            }
-
             const loadingDiv = document.getElementById('loadingIndicator');
-            loadingDiv.style.display = 'flex';
+            if (loadingDiv) loadingDiv.style.display = 'flex';
 
             try {
+                const duration = localStorage.getItem('selectedDuration') || '1d';
                 const response = await fetch(`/api/sector-data?duration=${duration}`);
                 const data = await response.json();
 
@@ -827,28 +899,27 @@
             } catch (error) {
                 showToast('Error: ' + error.message, 'error');
             } finally {
-                loadingDiv.style.display = 'none';
+                if (loadingDiv) loadingDiv.style.display = 'none';
             }
         }
 
         function displayResults(data) {
-            // Show Top Performers (sector-wise)
-            showTopPerformers(data.data);
+            // Sort sectors by percentage change (high to low)
+            const sortedSectors = [...data.data].sort((a, b) => 
+                parseFloat(b.percentage_change) - parseFloat(a.percentage_change)
+            );
             
-            // Show Charts
-            createCharts(data.data);
+            showTopPerformers(sortedSectors);
+            createCharts(sortedSectors);
+            displaySectors(sortedSectors);
             
-            // Show Sector Grid
-            displaySectors(data.data);
-            
-            // Update results count
-            document.getElementById('resultsCount').textContent = `${data.data.length} sectors found`;
             document.getElementById('resultsContainer').style.display = 'block';
             document.getElementById('chartsSection').style.display = 'block';
             document.getElementById('topPerformersContainer').style.display = 'block';
             document.getElementById('noData').style.display = 'none';
             
-            // Update cache status
+            document.getElementById('resultsCount').textContent = `${sortedSectors.length} sectors found`;
+            
             const cacheStatus = document.getElementById('cacheStatus');
             if (data.cached) {
                 cacheStatus.textContent = '✓ Cached';
@@ -864,14 +935,9 @@
         function showTopPerformers(sectors) {
             const container = document.getElementById('topPerformers');
             
-            // Sort sectors by performance
-            const sorted = [...sectors].sort((a, b) => 
-                parseFloat(b.percentage_change) - parseFloat(a.percentage_change)
-            );
-            
-            const gainers = sorted.filter(s => parseFloat(s.percentage_change) > 0).slice(0, 5);
-            const losers = sorted.filter(s => parseFloat(s.percentage_change) < 0).slice(-5).reverse();
-            const neutral = sorted.filter(s => Math.abs(parseFloat(s.percentage_change)) <= 0.5).slice(0, 5);
+            const gainers = sectors.filter(s => parseFloat(s.percentage_change) > 0).slice(0, 5);
+            const losers = sectors.filter(s => parseFloat(s.percentage_change) < 0).slice(-5).reverse();
+            const neutral = sectors.filter(s => Math.abs(parseFloat(s.percentage_change)) <= 0.5).slice(0, 5);
             
             function renderItems(items, type) {
                 if (items.length === 0) {
@@ -916,15 +982,9 @@
         }
 
         function createCharts(sectors) {
-            // Destroy existing charts
-            if (chartInstances.sectorPerformance) {
-                chartInstances.sectorPerformance.destroy();
-            }
-            if (chartInstances.trendDistribution) {
-                chartInstances.trendDistribution.destroy();
-            }
+            if (chartInstances.sectorPerformance) chartInstances.sectorPerformance.destroy();
+            if (chartInstances.trendDistribution) chartInstances.trendDistribution.destroy();
 
-            // Sector Performance Chart (Doughnut)
             const ctx1 = document.getElementById('sectorPerformanceChart').getContext('2d');
             const labels = sectors.map(s => s.sector || 'Unknown');
             const data = sectors.map(s => Math.abs(parseFloat(s.percentage_change)) || 0.1);
@@ -967,7 +1027,6 @@
                 }
             });
 
-            // Trend Distribution Chart (Bar)
             const ctx2 = document.getElementById('trendDistributionChart').getContext('2d');
             const trends = {};
             sectors.forEach(s => {
@@ -1037,7 +1096,6 @@
                 const stockCount = sector.stocks_data ? sector.stocks_data.length : 0;
                 const trendClass = sector.trend ? sector.trend.toLowerCase() : 'neutral';
                 
-                // Get first 3 stocks for preview
                 const previewStocks = (sector.stocks_data || []).slice(0, 3);
                 const stockPreviewHtml = previewStocks.map(s => 
                     `<span style="font-size: 12px; color: var(--text-secondary);">${s.stock_name || 'N/A'}</span>`
@@ -1076,21 +1134,12 @@
             grid.innerHTML = html;
         }
 
-        function formatCurrency(value) {
-            if (!value) return 'N/A';
-            if (value >= 10000000) {
-                return `₹${(value / 10000000).toFixed(2)} Cr`;
-            } else if (value >= 100000) {
-                return `₹${(value / 100000).toFixed(2)} L`;
-            }
-            return `₹${value.toLocaleString()}`;
-        }
-
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase().trim();
             const cards = document.querySelectorAll('.sector-card');
             let visibleCount = 0;
+            
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
                 const shouldShow = text.includes(searchTerm);
@@ -1106,9 +1155,7 @@
                 const response = await fetch('/api/cache', { method: 'DELETE' });
                 if (response.ok) {
                     showToast('Cache cleared successfully!', 'success');
-                    if (currentData) {
-                        displayResults(currentData);
-                    }
+                    if (currentData) fetchData();
                 }
             } catch (error) {
                 showToast('Error clearing cache: ' + error.message, 'error');
@@ -1146,11 +1193,9 @@
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
-            
             showToast('Data exported successfully!', 'success');
         });
 
-        // Toast notification
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -1171,28 +1216,16 @@
             
             toastMessage.textContent = message;
             toast.style.display = 'flex';
-            
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
         }
 
-        // Event Listeners
         document.getElementById('fetchDataBtn').addEventListener('click', fetchData);
-        document.getElementById('durationSelect').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchData();
-        });
 
-        // Auto-fetch on load
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const select = document.getElementById('durationSelect');
-                if (select) {
-                    select.value = '1d';
-                    fetchData();
-                }
-            }, 500);
+            setTimeout(() => fetchData(), 500);
         });
     </script>
 </body>

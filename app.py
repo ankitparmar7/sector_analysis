@@ -64,6 +64,15 @@ async def sector_analysis_page(request: Request):
         "current_date": todayDate
     })
 
+@app.get("/stock-analysis")
+async def stock_analysis_page(request: Request):
+    """Serve the stock analysis UI"""
+    return templates.TemplateResponse("stock_analysis.html", {
+        "request": request,
+        "durations": durationItems,
+        "current_date": todayDate
+    })
+
 @app.get("/guide")
 def read_root():
     return {

@@ -112,6 +112,10 @@
                     <i class="fas fa-building"></i>
                     <span>Sector Analysis</span>
                 </a>
+                <a href="/stock-analysis" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Stock Analysis</span>
+                </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-star"></i>
                     <span>Watchlist</span>
@@ -226,6 +230,9 @@
                 showToast('Please select a duration', 'warning');
                 return;
             }
+
+            // Save duration to localStorage for all pages
+            localStorage.setItem('selectedDuration', duration);
 
             const loadingDiv = document.getElementById('loadingIndicator');
             loadingDiv.style.display = 'flex';
@@ -430,15 +437,21 @@
             if (e.key === 'Enter') fetchData();
         });
 
-        // Auto-fetch on load
+        // Auto-fetch on load with saved duration
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const select = document.getElementById('durationSelect');
+                const savedDuration = localStorage.getItem('selectedDuration') || '1d';
                 if (select) {
-                    select.value = '1d';
+                    select.value = savedDuration;
                     fetchData();
                 }
             }, 500);
+        });
+
+        // Save duration when changed
+        document.getElementById('durationSelect').addEventListener('change', function() {
+            localStorage.setItem('selectedDuration', this.value);
         });
     </script>
 </body>
