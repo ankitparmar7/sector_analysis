@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes - Market Insight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Note Modal -->
+    <div id="noteModal" class="note-modal">
+        <div class="note-modal-content">
+            <div class="note-modal-header">
+                <h2><i class="fas fa-sticky-note"></i> <span id="noteModalTitle">Add Note</span></h2>
+                <button class="note-modal-close" onclick="window.notes.closeNoteModal()">&times;</button>
+            </div>
+            <div class="note-modal-body">
+                <div class="form-group">
+                    <label for="noteTitle"><i class="fas fa-heading"></i> Title (e.g., Stock Name)</label>
+                    <input type="text" id="noteTitle" placeholder="Enter title..." class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="noteContent"><i class="fas fa-align-left"></i> Content</label>
+                    <textarea id="noteContent" placeholder="Write your notes here..." class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tags"></i> Tags</label>
+                    <div class="tag-input-wrapper">
+                        <input type="text" id="tagInput" placeholder="Add tag..." class="form-control">
+                        <button class="btn-add-tag" onclick="window.notes.addTag()"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                    <div class="tags-container" id="tagsContainer"></div>
+                </div>
+            </div>
+            <div class="note-modal-footer">
+                <button class="btn btn-cancel" onclick="window.notes.closeNoteModal()">Cancel</button>
+                <button class="btn btn-save" id="saveNoteBtn">
+                    <i class="fas fa-save"></i> Save Note
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="note-modal">
+        <div class="note-modal-content">
+            <div class="note-modal-header">
+                <h2><i class="fas fa-exclamation-triangle" style="color: #fc8181;"></i> Delete Note</h2>
+                <button class="note-modal-close" onclick="window.notes.closeDeleteModal()">&times;</button>
+            </div>
+            <div class="note-modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Are you sure you want to delete this note?</p>
+            </div>
+            <div class="note-modal-footer">
+                <button class="btn btn-cancel" onclick="window.notes.closeDeleteModal()">Cancel</button>
+                <button class="btn btn-remove" onclick="window.notes.confirmDelete()" style="background: linear-gradient(135deg, #fc8181, #e53e3e); color: #fff; box-shadow: 0 4px 15px rgba(252, 129, 129, 0.3);">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" style="display: none;">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <span id="toastMessage"></span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Market<span>Insight</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sector-analysis" class="nav-item">
+                    <i class="fas fa-building"></i>
+                    <span>Sector Analysis</span>
+                </a>
+                <a href="/stock-analysis" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Stock Analysis</span>
+                </a>
+                <a href="/watchlist" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Watchlist</span>
+                </a>
+                <a href="/notes" class="nav-item active">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>Notes</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <span>Light Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1>Notes</h1>
+                    <span class="header-date"><i class="far fa-calendar-alt"></i> {{ current_date }}</span>
+                </div>
+                <div class="header-right">
+                    <button id="addNoteBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                    <button id="clearAllNotesBtn" class="btn btn-secondary">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                    <button id="exportNotesBtn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="notes-stats" id="notesStats">
+                <div class="notes-stat">
+                    <div class="stat-value" id="totalNotes">0</div>
+                    <div class="stat-label">Total Notes</div>
+                </div>
+                <div class="notes-stat">
+                    <div class="stat-value" id="totalTags">0</div>
+                    <div class="stat-label">Total Tags</div>
+                </div>
+                <div class="notes-stat">
+                    <div class="stat-value" id="recentNote">N/A</div>
+                    <div class="stat-label">Last Updated</div>
+                </div>
+            </div>
+
+            <!-- Search Controls -->
+            <div class="controls-card">
+                <div class="controls-row">
+                    <div class="control-group" style="flex: 2;">
+                        <label><i class="fas fa-search"></i> Search Notes</label>
+                        <input type="text" id="searchInput" placeholder="Search by title, content, or tags..." class="form-control">
+                    </div>
+                    <button id="refreshNotesBtn" class="btn btn-primary" style="margin-bottom: 0; height: 44px; min-width: 160px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsContainer">
+                <div class="section-header-with-badge">
+                    <h2><i class="fas fa-sticky-note"></i> Your Notes</h2>
+                    <span class="section-badge">Saved</span>
+                    <span class="section-status" id="resultsCount">0 notes</span>
+                </div>
+                <div id="notesGrid" class="notes-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/notes.js"></script>
+</body>
+</html>
