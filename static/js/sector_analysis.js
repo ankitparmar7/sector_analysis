@@ -7,6 +7,19 @@ class SectorAnalysis {
             this.initializeElements();
             this.attachEventListeners();
             this.initTheme();
+            // Add storage event listener for duration changes
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                    // Check if the duration actually changed
+                    const newDuration = localStorage.getItem('selectedDuration');
+                    const currentDuration = localStorage.getItem('selectedDuration') || '1d';
+                    if (newDuration) {
+                        // Small delay to ensure storage is updated
+                        setTimeout(() => this.fetchData(), 100);
+                    }
+                }
+            });
+            this.initTheme();
             setTimeout(() => this.fetchData(), 500);
         }
 
@@ -57,6 +70,11 @@ class SectorAnalysis {
         }
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeSectorModal();
+        });
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                this.fetchData();
+            }
         });
     }
 

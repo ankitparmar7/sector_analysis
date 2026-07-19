@@ -12,6 +12,16 @@ class StockAnalysis {
         this.initializeElements();
         this.attachEventListeners();
         this.initTheme();
+        // Add storage event listener for duration changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                const newDuration = localStorage.getItem('selectedDuration');
+                if (newDuration) {
+                    setTimeout(() => this.fetchData(), 100);
+                }
+            }
+        });
+        this.initTheme();
         setTimeout(() => this.fetchData(), 500);
     }
 
@@ -79,6 +89,12 @@ class StockAnalysis {
         }
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeWatchlistModal();
+        });
+        // Listen for duration changes from other pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                this.fetchData();
+            }
         });
     }
 

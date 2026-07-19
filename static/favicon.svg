@@ -1,0 +1,31 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 1200 1000"
+    width="1200"
+    height="1000">
+
+    <!-- Axis -->
+    <path
+        d="M350 260
+           L350 720
+           Q350 780 410 780
+           L920 780"
+        fill="none"
+        stroke="#6F7EF8"
+        stroke-width="72"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+    <!-- Trend Line (copied from your SVG and scaled) -->
+<path
+    d="M470 590
+       L620 460
+       L730 540
+       L880 390"
+    fill="none"
+    stroke="#6F7EF8"
+    stroke-width="72"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+
+</svg>

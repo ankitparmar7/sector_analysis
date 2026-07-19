@@ -81,6 +81,14 @@ class Watchlist {
                 this.closeRemoveModal();
             }
         });
+        // Listen for duration changes from other pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                // Reload watchlist data with new duration
+                this.loadWatchlist();
+                this.showToast('Duration updated from dashboard', 'info');
+            }
+        });
     }
 
     initTheme() {

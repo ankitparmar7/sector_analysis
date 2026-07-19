@@ -82,6 +82,13 @@ class Notes {
                 if (e.key === 'Enter') this.addTag();
             });
         }
+        // Listen for duration changes from other pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                // Notes don't depend on duration, but we can show a notification
+                this.showToast('Duration updated from dashboard', 'info');
+            }
+        });
     }
 
     initTheme() {

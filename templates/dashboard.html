@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Market Insight</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -79,7 +81,7 @@
             <!-- Controls -->
             <div class="controls-card">
                 <div class="controls-row">
-                    <div class="control-group" style="flex: 2;">
+                    <div class="control-group">
                         <label><i class="fas fa-clock"></i> Duration</label>
                         <select id="durationSelect" class="form-control">
                             <option value="">Select Duration</option>
@@ -88,13 +90,10 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <button id="fetchDataBtn" class="btn btn-primary" style="margin-bottom: 0; height: 44px; min-width: 160px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-rocket"></i> Analyze Market
-                    </button>
                 </div>
                 <div class="loading-indicator" id="loadingIndicator" style="display: none;">
                     <div class="spinner"></div>
-                    <span>Analyzing market data...</span>
+                    <span>Loading market data...</span>
                 </div>
             </div>
 
@@ -116,7 +115,7 @@
             <div id="noData" class="dashboard-empty" style="display: none;">
                 <i class="fas fa-database"></i>
                 <h3>No Data Available</h3>
-                <p>Select a duration and click "Analyze Market" to get started.</p>
+                <p>Select a duration to get started.</p>
             </div>
         </main>
     </div>

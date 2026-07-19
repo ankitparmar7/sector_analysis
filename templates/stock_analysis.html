@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Analysis - Market Insight</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -144,9 +146,6 @@
                         <label><i class="fas fa-search"></i> Search Stocks</label>
                         <input type="text" id="searchInput" placeholder="Search by stock name, code, or sector..." class="form-control">
                     </div>
-                    <button id="fetchDataBtn" class="btn btn-primary" style="margin-bottom: 0; height: 44px; min-width: 160px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-rocket"></i> Refresh Data
-                    </button>
                 </div>
                 
                 <div class="filter-row">
@@ -200,7 +199,7 @@
             <div id="noData" class="no-data" style="display: none;">
                 <i class="fas fa-database"></i>
                 <h3>No Data Available</h3>
-                <p>Click "Refresh Data" to view stock data.</p>
+                <p>Loading stock data...</p>
             </div>
         </main>
     </div>

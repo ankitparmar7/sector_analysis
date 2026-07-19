@@ -38,17 +38,42 @@ class Dashboard {
             this.themeToggle.addEventListener('click', () => this.toggleTheme());
         }
         if (this.durationSelect) {
+            // Save duration to localStorage and trigger update when changed
             this.durationSelect.addEventListener('change', () => {
-                localStorage.setItem('selectedDuration', this.durationSelect.value);
+                const duration = this.durationSelect.value;
+                if (duration) {
+                    localStorage.setItem('selectedDuration', duration);
+                    // Trigger storage event for other tabs/pages
+                    localStorage.setItem('durationChanged', Date.now().toString());
+                    // IMPORTANT: Fetch data immediately
+                    this.fetchData();
+                }
             });
             this.durationSelect.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.fetchData();
+                if (e.key === 'Enter') {
+                    const duration = this.durationSelect.value;
+                    if (duration) {
+                        localStorage.setItem('selectedDuration', duration);
+                        localStorage.setItem('durationChanged', Date.now().toString());
+                        this.fetchData();
+                    }
+                }
             });
         }
+        
+        // Listen for storage changes from other tabs/pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'durationChanged' || e.key === 'selectedDuration') {
+                const savedDuration = localStorage.getItem('selectedDuration');
+                if (savedDuration && this.durationSelect) {
+                    this.durationSelect.value = savedDuration;
+                    this.fetchData();
+                }
+            }
+        });
     }
 
     initTheme() {
-        // Set dark mode as default
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         this.updateThemeIcon(savedTheme);
@@ -69,18 +94,18 @@ class Dashboard {
     }
 
     updateThemeIcon(theme) {
-            if (this.themeToggle) {
-                const icon = this.themeToggle.querySelector('i');
-                const span = this.themeToggle.querySelector('span');
-                if (theme === 'dark') {
-                    icon.className = 'fas fa-sun';
-                    span.textContent = 'Light Mode';
-                } else {
-                    icon.className = 'fas fa-moon';
-                    span.textContent = 'Dark Mode';
-                }
+        if (this.themeToggle) {
+            const icon = this.themeToggle.querySelector('i');
+            const span = this.themeToggle.querySelector('span');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+                span.textContent = 'Light Mode';
+            } else {
+                icon.className = 'fas fa-moon';
+                span.textContent = 'Dark Mode';
             }
         }
+    }
 
     loadSavedDuration() {
         const savedDuration = localStorage.getItem('selectedDuration') || '1d';
@@ -97,7 +122,10 @@ class Dashboard {
             return;
         }
 
+        // Always save the current duration
         localStorage.setItem('selectedDuration', duration);
+        localStorage.setItem('durationChanged', Date.now().toString());
+        
         this.showLoading(true);
         this.hideResults();
 
@@ -112,7 +140,7 @@ class Dashboard {
             this.currentData = result;
             this.isCached = result.cached || false;
             this.displayResults(result);
-            this.showToast('Data loaded successfully!', 'success');
+            this.showToast(`Data loaded for ${duration}`, 'success');
         } catch (error) {
             console.error('Error:', error);
             this.showToast(error.message || 'Failed to load data. Please try again.', 'error');
